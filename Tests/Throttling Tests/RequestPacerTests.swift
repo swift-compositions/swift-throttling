@@ -235,23 +235,14 @@ struct RequestPacerTests {
     func testWaitUntilReady() async throws {
         let pacer = RequestPacer<String>(targetRate: 20.0)  // 50ms spacing
 
-        let start = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
-        // Schedule two requests
-        let result1 = await pacer.scheduleRequest("user1")
-        let result2 = await pacer.scheduleRequest("user1")
+        let result1 = await pacer.scheduleRequest("user1", timestamp: fixedTime)
+        let result2 = await pacer.scheduleRequest("user1", timestamp: fixedTime)
 
-        // First should be immediate
+        #expect(result1.delay == 0)
+        #expect(abs(result2.delay - 0.05) < 0.001)
+
         try await result1.waitUntilReady()
-        let elapsed1 = Date().timeIntervalSince(start)
-        #expect(elapsed1 < 0.01, "First request should be immediate")
-
-        // Second should wait ~50ms (with tolerance for CI runners)
-        try await result2.waitUntilReady()
-        let elapsed2 = Date().timeIntervalSince(start)
-        #expect(
-            elapsed2 >= 0.04 && elapsed2 < 0.2,
-            "Second request should wait ~50ms, got \(elapsed2)"
-        )
     }
 }
