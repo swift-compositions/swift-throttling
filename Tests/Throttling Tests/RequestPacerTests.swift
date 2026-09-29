@@ -39,7 +39,7 @@ struct RequestPacerTests {
     func testPacingDelayCalculation() async {
         let pacer = RequestPacer<String>(targetRate: 10.0)
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // First request should have no delay
         let result1 = await pacer.scheduleRequest("user1", timestamp: fixedTime)
@@ -64,7 +64,7 @@ struct RequestPacerTests {
     func testPacingWithDifferentKeys() async {
         let pacer = RequestPacer<String>(targetRate: 5.0)
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // First request for user1
         let result1 = await pacer.scheduleRequest("user1", timestamp: fixedTime)
@@ -137,7 +137,7 @@ struct RequestPacerTests {
             rateLimiter: rateLimiter
         )
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // First 3 requests should be allowed with pacing
         for i in 1...3 {
@@ -157,7 +157,7 @@ struct RequestPacerTests {
     func testReset() async {
         let pacer = RequestPacer<String>(targetRate: 5.0)
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // Make some requests
         _ = await pacer.scheduleRequest("user1", timestamp: fixedTime)

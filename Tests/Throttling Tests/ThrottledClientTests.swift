@@ -13,7 +13,7 @@ struct ThrottledClientTests {
             targetRate: 5.0
         )
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // First 5 requests should be allowed with proper pacing
         var results: [ThrottledClient<String>.AcquisitionResult] = []
@@ -46,7 +46,7 @@ struct ThrottledClientTests {
             pacer: nil
         )
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // Should allow 3 requests without pacing
         for i in 1...3 {
@@ -69,7 +69,7 @@ struct ThrottledClientTests {
             pacer: pacer
         )
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // All requests should be allowed with pacing
         for i in 1...20 {
@@ -94,7 +94,7 @@ struct ThrottledClientTests {
             backoffMultiplier: 2.0
         )
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // Make requests to reach the limit
         for _ in 1...5 {
@@ -126,7 +126,7 @@ struct ThrottledClientTests {
             targetRate: 10.0
         )
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // Exhaust rate limit
         _ = await client.acquire("user1", timestamp: fixedTime)
@@ -171,7 +171,7 @@ struct ThrottledClientTests {
             targetRate: 5.0
         )
 
-        let fixedTime = Date()
+        let fixedTime = Date(timeIntervalSince1970: 1_700_000_000)
 
         // Different keys should have independent limits and pacing
         let user1Result1 = await client.acquire("user1", timestamp: fixedTime)
