@@ -65,12 +65,7 @@ struct ReadmeVerificationTests {
             // Make request
 
             // Record outcome
-            let success = true
-            if success {
-                await client.recordSuccess("user123")
-            } else {
-                await client.recordFailure("user123")
-            }
+            await client.recordSuccess("user123")
         }
 
         #expect(result.canProceed)
