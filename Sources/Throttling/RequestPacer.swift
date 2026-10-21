@@ -74,9 +74,10 @@ public actor RequestPacer<Key: Hashable & Sendable> {
     ) async -> ScheduleResult {
         let rateLimitResult: RateLimiter<Key>.RateLimitResult?
         if let rateLimiter = config.rateLimiter {
-            rateLimitResult = await rateLimiter.checkLimit(key, timestamp: timestamp)
+            let checked = await rateLimiter.checkLimit(key, timestamp: timestamp)
+            rateLimitResult = checked
 
-            if !rateLimitResult!.isAllowed {
+            if !checked.isAllowed {
                 return ScheduleResult(
                     isAllowed: false,
                     scheduledTime: timestamp,

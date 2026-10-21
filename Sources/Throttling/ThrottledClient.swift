@@ -59,12 +59,13 @@ public struct ThrottledClient<Key: Hashable & Sendable>: Sendable {
     ) async -> AcquisitionResult {
         let rateLimitResult: RateLimiter<Key>.RateLimitResult?
         if let rateLimiter {
-            rateLimitResult = await rateLimiter.checkLimit(key, timestamp: timestamp)
+            let checked = await rateLimiter.checkLimit(key, timestamp: timestamp)
+            rateLimitResult = checked
 
-            if !rateLimitResult!.isAllowed {
+            if !checked.isAllowed {
                 let retryAfter =
-                    rateLimitResult!.backoffInterval
-                    ?? rateLimitResult!.nextAllowedAttempt?.timeIntervalSince(timestamp)
+                    checked.backoffInterval
+                    ?? checked.nextAllowedAttempt?.timeIntervalSince(timestamp)
 
                 return AcquisitionResult(
                     canProceed: false,
@@ -81,19 +82,7 @@ public struct ThrottledClient<Key: Hashable & Sendable>: Sendable {
             rateLimitResult = nil
         }
 
-        let pacingResult: RequestPacer<Key>.ScheduleResult?
-        if let pacer {
-            pacingResult = await pacer.scheduleRequest(key, timestamp: timestamp)
-
-            return AcquisitionResult(
-                canProceed: true,
-                scheduledTime: pacingResult!.scheduledTime,
-                delay: pacingResult!.delay,
-                retryAfter: nil,
-                rateLimitResult: rateLimitResult,
-                pacingResult: pacingResult
-            )
-        } else {
+        guard let pacer else {
             return AcquisitionResult(
                 canProceed: true,
                 scheduledTime: timestamp,
@@ -103,6 +92,17 @@ public struct ThrottledClient<Key: Hashable & Sendable>: Sendable {
                 pacingResult: nil
             )
         }
+
+        let pacingResult = await pacer.scheduleRequest(key, timestamp: timestamp)
+
+        return AcquisitionResult(
+            canProceed: true,
+            scheduledTime: pacingResult.scheduledTime,
+            delay: pacingResult.delay,
+            retryAfter: nil,
+            rateLimitResult: rateLimitResult,
+            pacingResult: pacingResult
+        )
     }
 
     public func recordSuccess(_ key: Key) async {
